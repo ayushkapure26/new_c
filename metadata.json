@@ -1,0 +1,6 @@
+{
+  "name": "CNGमित्र",
+  "description": "CNG station finder, live status & pressure, vehicle mileage diary, and monthly expense tracker.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

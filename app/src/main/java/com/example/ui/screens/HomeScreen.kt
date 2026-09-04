@@ -79,6 +79,7 @@ import com.example.ui.components.CircularMileageGauge
 import com.example.ui.components.CngStatusCard
 import com.example.ui.components.DriverQuickActionsGrid
 import com.example.ui.components.DriverRefillBottomSheet
+import com.example.ui.components.GeminiCngAdvisorSheet
 import com.example.ui.components.HomeRecentRefillsSection
 import com.example.ui.components.HomeStatisticsGrid
 import com.example.ui.components.LanguageSelectorDialog
@@ -127,6 +128,7 @@ fun HomeScreen(
 
     val appPreferences = remember { com.example.util.AppPreferences(context) }
     var showQuickRefillBottomSheet by rememberSaveable { mutableStateOf(false) }
+    var showGeminiAdvisorSheet by rememberSaveable { mutableStateOf(false) }
     var showAppTourDialog by rememberSaveable { mutableStateOf(!appPreferences.isAppTourCompleted) }
     var showLanguageDialog by rememberSaveable { mutableStateOf(false) }
     var showVehicleSelectDialog by rememberSaveable { mutableStateOf(false) }
@@ -165,14 +167,14 @@ fun HomeScreen(
                 Spacer(modifier = Modifier.height(4.dp))
             }
 
-            // Driver App Tour Banner (Optional / Dismissible)
+            // Driver App Tour & AI Advisor Banner
             item {
                 Surface(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(16.dp))
-                        .clickable { showAppTourDialog = true }
-                        .testTag("home_app_tour_banner"),
+                        .clickable { showGeminiAdvisorSheet = true }
+                        .testTag("home_ai_advisor_banner"),
                     shape = RoundedCornerShape(16.dp),
                     color = MaterialTheme.colorScheme.primary.copy(alpha = 0.08f),
                     border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.25f))
@@ -203,13 +205,13 @@ fun HomeScreen(
                             Spacer(modifier = Modifier.width(10.dp))
                             Column {
                                 Text(
-                                    text = "Smart CNG Assistant",
+                                    text = "Smart CNG Assistant & AI Tips",
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 13.sp,
                                     color = MaterialTheme.colorScheme.onSurface
                                 )
                                 Text(
-                                    text = "Live station pressure, auto-mileage & fuel records",
+                                    text = "Gemini AI mileage tuning, diagnostics & health",
                                     fontSize = 11.sp,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     maxLines = 1
@@ -217,17 +219,34 @@ fun HomeScreen(
                             }
                         }
 
-                        Surface(
-                            shape = RoundedCornerShape(8.dp),
-                            color = MaterialTheme.colorScheme.primary
-                        ) {
-                            Text(
-                                text = "Tour",
-                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                                fontSize = 11.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color.White
-                            )
+                        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            Surface(
+                                shape = RoundedCornerShape(8.dp),
+                                color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.clickable { showGeminiAdvisorSheet = true }
+                            ) {
+                                Text(
+                                    text = "AI Tips",
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.White
+                                )
+                            }
+
+                            Surface(
+                                shape = RoundedCornerShape(8.dp),
+                                color = MaterialTheme.colorScheme.surfaceVariant,
+                                modifier = Modifier.clickable { showAppTourDialog = true }
+                            ) {
+                                Text(
+                                    text = "Tour",
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
                         }
                     }
                 }
@@ -271,6 +290,113 @@ fun HomeScreen(
                     currentMileage = state.activeCarMileage,
                     vehicleName = state.activeCar?.name ?: "Active Vehicle"
                 )
+            }
+
+            // 3b. Gemini AI Mileage & Health Advisor Card
+            item {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(20.dp))
+                        .clickable { showGeminiAdvisorSheet = true }
+                        .testTag("home_gemini_advisor_card"),
+                    shape = RoundedCornerShape(20.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                    border = BorderStroke(1.2.dp, EmeraldGreen.copy(alpha = 0.4f))
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(38.dp)
+                                        .clip(CircleShape)
+                                        .background(
+                                            androidx.compose.ui.graphics.Brush.linearGradient(
+                                                listOf(DarkTeal, EmeraldGreen)
+                                            )
+                                        ),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Stars,
+                                        contentDescription = null,
+                                        tint = Color.White,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                }
+                                Spacer(modifier = Modifier.width(10.dp))
+                                Column {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Text(
+                                            text = "Gemini AI CNG Advisor",
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 15.sp,
+                                            color = MaterialTheme.colorScheme.onSurface
+                                        )
+                                        Spacer(modifier = Modifier.width(6.dp))
+                                        Surface(
+                                            shape = RoundedCornerShape(6.dp),
+                                            color = EmeraldGreen.copy(alpha = 0.15f)
+                                        ) {
+                                            Text(
+                                                text = "Active",
+                                                fontSize = 9.sp,
+                                                fontWeight = FontWeight.ExtraBold,
+                                                color = EmeraldGreen,
+                                                modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.dp)
+                                            )
+                                        }
+                                    }
+                                    Text(
+                                        text = "Smart mileage tuning & engine health audit",
+                                        fontSize = 11.sp,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+
+                            Surface(
+                                shape = RoundedCornerShape(10.dp),
+                                color = DarkTeal
+                            ) {
+                                Text(
+                                    text = "Open Tips",
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.White,
+                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
+                                )
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        Surface(
+                            shape = RoundedCornerShape(12.dp),
+                            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f),
+                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(10.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = "💡 Quick Tip: Fill early in the morning at 200+ Bar for +10% denser gas, and keep spark plug gaps calibrated to 0.75 mm.",
+                                    fontSize = 11.sp,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    lineHeight = 15.sp
+                                )
+                            }
+                        }
+                    }
+                }
             }
 
             // 4. Material 3 Visual Dashboard - Bar Chart for "Weekly Expenses"
@@ -598,6 +724,15 @@ fun HomeScreen(
                     refillViewModel.saveRefill(id, carId, pumpId, pumpName, odo, qty, price, total, isFull, notes)
                     showQuickRefillBottomSheet = false
                 }
+            )
+        }
+
+        // Gemini AI CNG Advisor & Mileage Optimization Sheet
+        if (showGeminiAdvisorSheet) {
+            GeminiCngAdvisorSheet(
+                activeCar = state.activeCar,
+                refills = refillsList,
+                onDismiss = { showGeminiAdvisorSheet = false }
             )
         }
 
